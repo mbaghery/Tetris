@@ -1,3 +1,5 @@
+package main.java;
+
 import org.apache.commons.lang3.ArrayUtils;
 
 class TetrisCanvas extends Canvas {
@@ -7,10 +9,10 @@ class TetrisCanvas extends Canvas {
         super(width, height);
     }
 
-//    TetrisCanvas(TetrisCanvas ts) {
+//    main.java.TetrisCanvas(main.java.TetrisCanvas ts) {
 //        super(ts);
 //
-//        block = new Block(ts.block);
+//        block = new main.java.Block(ts.block);
 //    }
 
     TetrisCanvas(Canvas cnv) {
@@ -223,7 +225,7 @@ class TetrisCanvas extends Canvas {
 //                block.setY(block.getY() - 1);
 //                for (int i = 0; i < tempBlock.length; i++) {
 //                    for (int j = 0; j < tempBlock[i].length; j++) {
-//                        if (!tempBlock[i][j].equals(Colors.WHITE)) {
+//                        if (!tempBlock[i][j].equals(main.java.Colors.WHITE)) {
 //                            writePixels(tempBlock[i][j], block.getX() + i, block.getY() + j);
 //                        }
 //                    }

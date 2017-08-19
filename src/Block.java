@@ -1,3 +1,5 @@
+package main.java;
+
 /* These are the shapes and their acronyms
  * O: **
  *    **
@@ -25,7 +27,7 @@
  *     **
  */
 
-/* Block is immutable. */
+/* main.java.Block is immutable. */
 class Block {
     private BlockType bType;
     private boolean[][] pixels;

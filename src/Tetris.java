@@ -1,4 +1,4 @@
-/*
+package main.java;/*
  * Written by Mehrdad Baghery
    First release on: 9.10.2007
  */

@@ -1,3 +1,7 @@
-#Mac OS junk files
+# Mac OS junk
 *.DS_Store
 
+
+# IDE junk
+main.java.Tetris.iml
+.idea/*

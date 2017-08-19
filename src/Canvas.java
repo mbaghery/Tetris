@@ -1,4 +1,6 @@
-/* Canvas is immutable. */
+package main.java;
+
+/* main.java.Canvas is immutable. */
 public class Canvas {
     /*
      * x and y run from 0 to (width-1) and (height-1) respectively
