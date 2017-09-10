@@ -27,22 +27,46 @@ package main.java;
  *     **
  */
 
+import java.util.Random;
+
 /* main.java.Block is immutable. */
-class Block {
+public class Block {
     private BlockType bType;
     private boolean[][] pixels;
-    private Colors color;
+    private Colour color;
     private int x, y;
 
-    Block(BlockType bType) {
+    private Random random;
+
+    {
+        random = new Random(System.currentTimeMillis());
+    }
+
+
+    public Block() {
+        this.bType = BlockType.values()[random.nextInt(7)];
+        initialise();
+    }
+
+    public Block(BlockType bType) {
         this.bType = bType;
+        initialise();
+    }
+
+
+    private void initialise() {
         x = 0;
         y = 0;
 
         int size = getSize();
 
+
         pixels = new boolean[size][size];
-        clearMe();
+
+        for (boolean[] row : pixels)
+            for (boolean pixel : row)
+                pixel = false;
+
 
         switch (bType) {
             case O:
@@ -50,57 +74,58 @@ class Block {
                 pixels[0][1] = true;
                 pixels[1][0] = true;
                 pixels[1][1] = true;
-                color = Colors.GREEN;
+                color = Colour.GREEN;
                 break;
             case I:
                 pixels[0][2] = true;
                 pixels[1][2] = true;
                 pixels[2][2] = true;
                 pixels[3][2] = true;
-                color = Colors.YELLOW;
+                color = Colour.YELLOW;
                 break;
             case L:
-                pixels[2][0] = true;
+                pixels[2][2] = true;
                 pixels[0][1] = true;
                 pixels[1][1] = true;
                 pixels[2][1] = true;
-                color = Colors.RED;
+                color = Colour.RED;
                 break;
             case J:
                 pixels[0][2] = true;
                 pixels[0][1] = true;
                 pixels[1][1] = true;
                 pixels[2][1] = true;
-                color = Colors.BLUE;
+                color = Colour.BLUE;
                 break;
             case A:
                 pixels[1][2] = true;
                 pixels[0][1] = true;
                 pixels[1][1] = true;
                 pixels[2][1] = true;
-                color = Colors.PINK;
+                color = Colour.PINK;
                 break;
             case S:
                 pixels[0][1] = true;
                 pixels[1][1] = true;
                 pixels[1][2] = true;
                 pixels[2][2] = true;
-                color = Colors.ORANGE;
+                color = Colour.ORANGE;
                 break;
             case Z:
                 pixels[0][2] = true;
                 pixels[1][2] = true;
                 pixels[1][1] = true;
-                pixels[2][0] = true;
-                color = Colors.CYAN;
+                pixels[2][1] = true;
+                color = Colour.CYAN;
                 break;
         }
     }
 
-    Block(Block b) {
+    public Block(Block b) {
         this.bType = b.bType;
         this.x = b.x;
         this.y = b.y;
+        this.color = b.color;
 
         int size = getSize();
 
@@ -112,21 +137,32 @@ class Block {
 
     }
 
-    private void clearMe() {
-        for (boolean[] row : pixels) {
-            for (boolean pixel : row) {
-                pixel = false;
-            }
-        }
-    }
 
-    Block rotateCW() {
+    public Block rotateCW() {
         Block b = new Block(this);
         MatrixStuff.rotateCW(b.pixels);
         return b;
     }
 
-    boolean getPixel(int x, int y) throws ArrayIndexOutOfBoundsException {
+    public Block move(Direction direction) {
+        Block b = new Block(this);
+
+        switch (direction) {
+            case DOWN:
+                b = this.setXY(this.getX(), this.getY() - 1);
+                break;
+            case LEFT:
+                b = this.setXY(this.getX() - 1, this.getY());
+                break;
+            case RIGHT:
+                b = this.setXY(this.getX() + 1, this.getY());
+                break;
+        }
+
+        return b;
+    }
+
+    public boolean getPixel(int x, int y) throws ArrayIndexOutOfBoundsException {
         int s = getSize();
 
         if (x >= s || x < 0 || y >= s || y < 0)
@@ -135,22 +171,22 @@ class Block {
         return pixels[x][y];
     }
 
-    Block setXY(int x, int y) {
+    public Block setXY(int x, int y) {
         Block b = new Block(this);
         b.x = x;
         b.y = y;
         return b;
     }
 
-    int getX() {
+    public int getX() {
         return x;
     }
 
-    int getY() {
+    public int getY() {
         return y;
     }
 
-    int getSize() {
+    public int getSize() {
         switch (bType) {
             case O:
                 return 2;
@@ -161,7 +197,7 @@ class Block {
         }
     }
 
-    Colors getColor() {
+    public Colour getColor() {
         return color;
     }
 
@@ -169,13 +205,19 @@ class Block {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        for (boolean[] row : pixels) {
-            for (boolean pixel : row)
-                if (pixel) sb.append('*');
-                else sb.append(' ');
+
+        for (int j = getSize() - 1; j >= 0; j--) {
+            for (int i = 0; i < getSize(); i++) {
+                if (getPixel(i, j))
+                    sb.append('*');
+                else
+                    sb.append('-');
+            }
 
             sb.append('\n');
         }
+
+        sb.append("x: " + x + ", y: " + y);
 
         return sb.toString();
     }

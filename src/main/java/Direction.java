@@ -1,6 +1,6 @@
 package main.java;
 
-enum Arrows {
+enum Direction {
     DOWN,
     LEFT,
     RIGHT

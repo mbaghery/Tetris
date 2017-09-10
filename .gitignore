@@ -3,5 +3,9 @@
 
 
 # IDE junk
-main.java.Tetris.iml
+main.java.TetrisApp.iml
 .idea/*
+
+# production files
+out/*
+test/*

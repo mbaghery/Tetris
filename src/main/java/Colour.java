@@ -2,7 +2,8 @@ package main.java;
 
 import java.awt.Color;
 
-enum Colors {
+// I am trusting Color to be immutable, in which case this class is immutable.
+enum Colour {
     WHITE(Color.WHITE),
     GREEN(Color.GREEN),
     RED(Color.RED),
@@ -14,12 +15,11 @@ enum Colors {
 
     Color c;
 
-    Colors(Color c) {
+    Colour(Color c) {
         this.c = c;
     }
 
-    // I am assuming here Color is immutable
-    Color getColor() {
+    public Color getColor() {
         return c;
     }
 }

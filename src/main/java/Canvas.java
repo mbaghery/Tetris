@@ -7,35 +7,35 @@ public class Canvas {
      */
 
     private int width, height;
-    private Colors[] pixels;
+    private Colour[] pixels;
 
-    Canvas(int width, int height) {
+    public Canvas(int width, int height) {
         this.width = width;
         this.height = height;
 
-        pixels = new Colors[noPixels()];
+        pixels = new Colour[noPixels()];
 
         for (int i = 0; i < pixels.length; i++)
-            pixels[i] = Colors.WHITE;
+            pixels[i] = Colour.WHITE;
     }
 
-    Canvas(Canvas cnv) {
+    public Canvas(Canvas cnv) {
         this.width = cnv.width;
         this.height = cnv.height;
 
-        pixels = new Colors[noPixels()];
+        pixels = new Colour[noPixels()];
 
         System.arraycopy(cnv.pixels, 0, this.pixels, 0, noPixels());
     }
 
-    Colors readPixel(int x, int y) throws ArrayIndexOutOfBoundsException {
+    public Colour readPixel(int x, int y) throws ArrayIndexOutOfBoundsException {
         if (x >= getWidth() || x < 0 || y >= getHeight() || y < 0)
             throw new ArrayIndexOutOfBoundsException();
 
         return pixels[x * getHeight() + y];
     }
 
-    Canvas writePixels(Colors[] cs, int[] xs, int[] ys) throws Exception {
+    public Canvas writePixels(Colour[] cs, int[] xs, int[] ys) throws Exception {
         if (cs.length != xs.length || xs.length != ys.length)
             throw new Exception("Vectors pixels, xs and ys should be the same size.");
 
@@ -52,15 +52,15 @@ public class Canvas {
         return newCanvas;
     }
 
-    int getWidth() {
+    public int getWidth() {
         return width;
     }
 
-    int getHeight() {
+    public int getHeight() {
         return height;
     }
 
-    int noPixels() {
+    public int noPixels() {
         return width * height;
     }
 
@@ -68,11 +68,12 @@ public class Canvas {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < getWidth(); i++) {
-            for (int j = 0; j < getHeight(); j++)
+        for (int j = getHeight() - 1; j >= 0; j--) {
+            for (int i = 0; i < getWidth(); i++)
                 sb.append(readPixel(i, j).toString().charAt(0));
 
             sb.append('\n');
+
         }
 
         return sb.toString();

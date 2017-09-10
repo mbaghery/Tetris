@@ -2,52 +2,48 @@ package main.java;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-class TetrisCanvas extends Canvas {
+public class TetrisCanvas extends Canvas {
     private Block block;
 
-    TetrisCanvas(int width, int height) {
+    public TetrisCanvas(int width, int height) {
         super(width, height);
     }
 
-//    main.java.TetrisCanvas(main.java.TetrisCanvas ts) {
-//        super(ts);
-//
-//        block = new main.java.Block(ts.block);
-//    }
-
-    TetrisCanvas(Canvas cnv) {
+    public TetrisCanvas(Canvas cnv) {
         super(cnv);
     }
 
-    boolean isThereAnActiveBlock() {
+    public boolean isBlockActive() {
         return block != null;
     }
 
-    TetrisCanvas addBlock(Block block) throws Exception {
-        if (isThereAnActiveBlock())
-            throw new Exception("There is a block on the canvas already");
+    public TetrisCanvas addBlock(Block block) throws Exception {
+        if (isBlockActive())
+            throw new Exception("addBlock. There shouldn't be a block on the canvas");
 
-        TetrisCanvas ts = new TetrisCanvas(this);
-        ts.block = block.setXY(((getWidth() - block.getSize()) / 2) - 1, 0);
+        TetrisCanvas tc = new TetrisCanvas(this);
 
-        return ts;
+        tc.block = block.setXY((getWidth() - block.getSize()) / 2,
+                getHeight() - block.getSize());
+
+        return tc;
     }
 
-    TetrisCanvas fixBlock() throws Exception {
-        if (!isThereAnActiveBlock())
-            throw new Exception("There is NO block on the canvas!");
+    private TetrisCanvas fixBlock() throws Exception {
+        if (!isBlockActive())
+            throw new Exception("fixBlock. There is no block on the canvas!");
 
-        TetrisCanvas ts = null;
+        TetrisCanvas tc = null;
 
         int s = block.getSize();
 
-        int[] xs = null;
-        int[] ys = null;
-        Colors[] cs = null;
+        int[] xs = new int[0];
+        int[] ys = new int[0];
+        Colour[] cs = new Colour[0];
 
         int xBlock = block.getX();
         int yBlock = block.getY();
-        Colors colorBlock = block.getColor();
+        Colour colorBlock = block.getColor();
 
         for (int i = 0; i < s; i++) {
             for (int j = 0; j < s; j++) {
@@ -60,35 +56,58 @@ class TetrisCanvas extends Canvas {
         }
 
         try {
-            ts = new TetrisCanvas(writePixels(cs, xs, ys));
+            tc = new TetrisCanvas(writePixels(cs, xs, ys));
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("Not good. Index out of bound");
+            System.out.println("fixBlock. Index out of bound");
         } catch (Exception e) {
-            System.out.println("Not good. Matrices not the same size");
+            System.out.println("fixBlock. Matrices not the same size");
         }
 
-        return ts;
+        return tc;
 
     }
 
-    TetrisCanvas rotateBlock() throws Exception {
-        if (!isThereAnActiveBlock())
-            throw new Exception("There is no active block in on the canvas yet.");
+    public TetrisCanvas rotateBlockCW() throws Exception {
+        if (!isBlockActive())
+            throw new Exception("rotateBlockCW. There is no active block in on the canvas yet.");
 
         Block b = block.rotateCW();
 
         if (!doesBlockConflict(b)) {
-            TetrisCanvas ts = new TetrisCanvas(this);
-            ts.block = b;
+            TetrisCanvas tc = new TetrisCanvas(this);
+            tc.block = b;
 
-            return ts;
-        } else {
-            return this;
+            return tc;
         }
+
+
+        Block bLeft = b.move(Direction.LEFT);
+
+        if (!doesBlockConflict(bLeft)) {
+            TetrisCanvas tc = new TetrisCanvas(this);
+            tc.block = bLeft;
+
+            return tc;
+        }
+
+
+        Block bRight = b.move(Direction.RIGHT);
+
+        if (!doesBlockConflict(bRight)) {
+            TetrisCanvas tc = new TetrisCanvas(this);
+            tc.block = bRight;
+
+            return tc;
+        }
+
+
+        return this;
+
     }
 
     private boolean doesBlockConflict(Block b) {
-        int x = block.getX(), y = block.getY();
+        int x = b.getX();
+        int y = b.getY();
 
         int size = b.getSize();
 
@@ -97,18 +116,18 @@ class TetrisCanvas extends Canvas {
                 if (b.getPixel(i, j))
                     if (x + i < 0 || x + i >= getWidth() ||
                             y + j < 0 || y + j >= getHeight() ||
-                            !super.readPixel(x + i, y + j).equals(Colors.WHITE))
+                            !super.readPixel(x + i, y + j).equals(Colour.WHITE))
                         return true;
 
         return false;
     }
 
     @Override
-    Colors readPixel(int x, int y) throws ArrayIndexOutOfBoundsException {
+    public Colour readPixel(int x, int y) throws ArrayIndexOutOfBoundsException {
         if (x >= getWidth() || x < 0 || y >= getHeight() || y < 0)
             throw new ArrayIndexOutOfBoundsException();
 
-        if (isThereAnActiveBlock()) {
+        if (isBlockActive()) {
 
             int s = block.getSize();
 
@@ -127,38 +146,38 @@ class TetrisCanvas extends Canvas {
 
         outer:
         for (int j = 0; j < getHeight(); j++) {
-            inner:
             for (int i = 0; i < getWidth(); i++)
-                if (super.readPixel(i, j).equals(Colors.WHITE))
+                if (super.readPixel(i, j).equals(Colour.WHITE))
                     continue outer;
 
-            ArrayUtils.add(ys, j);
+            ys = ArrayUtils.add(ys, j);
         }
 
         return ys;
     }
 
 
-    Pair<TetrisCanvas, Integer> clearFullRows() throws UnsupportedOperationException {
-        if (isThereAnActiveBlock())
-            throw new UnsupportedOperationException("There shouldn't be any active block.");
+    public Pair<TetrisCanvas, Integer> clearFullRows() throws Exception {
+        if (isBlockActive())
+            throw new Exception("clearFullRows. There shouldn't be any active block.");
 
         int[] fullRowsYs = getFullRowsYs();
 
         if (fullRowsYs.length == 0)
             return new Pair<>(this, 0);
 
-        Colors[] cs;
+
+        Colour[] cs;
         int[] xs;
         int[] ys;
 
         Canvas cnv = this;
 
 
-        for (int rowIndex = fullRowsYs.length; rowIndex >= 0; rowIndex--) {
-            cs = null;
-            xs = null;
-            ys = null;
+        for (int rowIndex = fullRowsYs.length - 1; rowIndex >= 0; rowIndex--) {
+            xs = new int[0];
+            ys = new int[0];
+            cs = new Colour[0];
 
             for (int j = fullRowsYs[rowIndex] + 1; j < getHeight(); j++) {
                 for (int i = 0; i < getWidth(); i++) {
@@ -171,15 +190,15 @@ class TetrisCanvas extends Canvas {
             for (int i = 0; i < getWidth(); i++) {
                 xs = ArrayUtils.add(xs, i);
                 ys = ArrayUtils.add(ys, getHeight() - 1);
-                cs = ArrayUtils.add(cs, Colors.WHITE);
+                cs = ArrayUtils.add(cs, Colour.WHITE);
             }
 
             try {
                 cnv = writePixels(cs, xs, ys);
             } catch (ArrayIndexOutOfBoundsException e) {
-                System.out.println("Not good. Index out of bound");
+                System.out.println("clearFullRows. Index out of bound");
             } catch (Exception e) {
-                System.out.println("Not good. Matrices not the same size");
+                System.out.println("clearFullRows. Matrices not the same size");
             }
         }
 
@@ -187,15 +206,15 @@ class TetrisCanvas extends Canvas {
     }
 
 
-    boolean isCanvasFull() throws UnsupportedOperationException {
-        if (isThereAnActiveBlock())
-            throw new UnsupportedOperationException("There shouldn't be any active block.");
+    public boolean isCanvasFull() throws Exception {
+        if (isBlockActive())
+            throw new Exception("isCanvasFull. There shouldn't be any active block.");
 
 
         boolean isFull = false;
 
         for (int i = getWidth() / 2 - 1; i < getWidth() / 2 + 1; i++)
-            if (!super.readPixel(i, getHeight()).equals(Colors.WHITE)) {
+            if (!super.readPixel(i, getHeight() - 1).equals(Colour.WHITE)) {
                 isFull = true;
                 break;
             }
@@ -203,49 +222,40 @@ class TetrisCanvas extends Canvas {
         return isFull;
     }
 
+    public TetrisCanvas dropBlock() throws Exception {
+        if (!isBlockActive())
+            throw new Exception("dropBlock. There isn't any active block to move.");
+        TetrisCanvas tc = this;
 
-    TetrisCanvas moveBlock(Arrows direction) throws UnsupportedOperationException {
-        if (!isThereAnActiveBlock())
-            throw new UnsupportedOperationException("There isn't any active block to move.");
+        while (tc.isBlockActive())
+            tc = tc.moveBlock(Direction.DOWN);
 
-        Block b = null;
+        return tc;
+    }
 
-        switch (direction) {
-            case DOWN:
-                b = block.setXY(block.getX(), block.getY() + 1);
-                if (doesBlockConflict(b)) {
-                    TetrisCanvas ts = null;
-                    try {
-                        ts = fixBlock();
-                    } catch (Exception e) {
-                        System.out.println("Something went wrong.");
-                    }
-                    return ts;
-                }
-//                block.setY(block.getY() - 1);
-//                for (int i = 0; i < tempBlock.length; i++) {
-//                    for (int j = 0; j < tempBlock[i].length; j++) {
-//                        if (!tempBlock[i][j].equals(main.java.Colors.WHITE)) {
-//                            writePixels(tempBlock[i][j], block.getX() + i, block.getY() + j);
-//                        }
-//                    }
-//                }
-//                block = null;
-            case LEFT:
-                b = block.setXY(block.getX() - 1, block.getY());
-                if (doesBlockConflict(b))
-                    return this;
-            case RIGHT:
-                b = block.setXY(block.getX() + 1, block.getY());
-                if (doesBlockConflict(b))
-                    return this;
+    public TetrisCanvas moveBlock(Direction direction) throws Exception {
+        if (!isBlockActive())
+            throw new Exception("moveBlock. There isn't any active block to move.");
+
+
+        TetrisCanvas tc;
+
+        Block b = block.move(direction);
+
+        if (doesBlockConflict(b)) {
+            switch (direction) {
+                case DOWN:
+                    tc = fixBlock();
+                    break;
+                default:
+                    tc = this;
+            }
+        } else {
+            tc = new TetrisCanvas(this);
+            tc.block = b;
         }
 
-
-        TetrisCanvas ts = new TetrisCanvas(this);
-        ts.block = b;
-
-        return ts;
+        return tc;
 
     }
 
